@@ -49,7 +49,7 @@ foreach(array('includes', 'providers-includes', 'provider-includes') as $name) {
 
 store_content('packages.json', $packages, 'sha256');
 
-echo "step 4: have a beer!";
+echo "step 4: have a beer!\n";
 
 /**
  * Iterate over package and fix references
