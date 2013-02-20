@@ -11,7 +11,7 @@ function replace_source_host($url)
 {
     return str_replace(
         array('https://github.com','git://github.com'), 
-        'git@git.mycompany.com/mirrors/github.com', 
+        'git@git.mycompany.com:/mirrors/github.com', 
         $url
     );
 }

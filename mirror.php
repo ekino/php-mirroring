@@ -38,9 +38,10 @@ foreach(array('includes', 'providers-includes', 'provider-includes') as $name) {
         list($content, $algo, ) = download_file($file, $options);
 
         if (isset($content['packages'])) {
-            $content = update_packages($content['packages']);
+            $content['packages'] = update_packages($content['packages']);
         } else {
-            $content = update_providers($content['providers']);
+            // legacy repo handling
+            $content['providers'] = update_providers($content['providers']);
         }
 
         $options[$algo] = store_content($file, $content, $algo);
@@ -88,7 +89,7 @@ function update_providers(array $providers)
         list($content, $algo, ) = download_file($provider, $options);
 
         $content['packages'] = update_packages($content['packages']);
-        $options[$algo] = store_content($provider, $content['packages'], $algo);
+        $options[$algo] = store_content($provider, $content, $algo);
     }
 
     return $providers;
