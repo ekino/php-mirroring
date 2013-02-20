@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * Replace the current github reference by another git mirror server
+ *
+ * @param string $url
+ *
+ * @return string
+ */
+function replace_source_host($url) 
+{
+    return str_replace(
+        array('https://github.com','git://github.com'), 
+        'git@git.mycompany.com/mirrors/github.com', 
+        $url
+    );
+}
+
+/**
+ * Replace the current github download option by another http mirror server
+ *
+ * @param array $metadata
+ */
+function replace_dist_host(array $metadata)
+{
+    list($vendor, $name) = explode("/", $metadata['name']);
+
+    return sprintf('https://git.mycompany.com/mirrors/github.com/%s.git/snapshot/%s-%s.zip',
+        $metadata['name'],
+        $name,
+        $metadata['dist']['reference']
+    );
+}
