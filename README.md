@@ -69,3 +69,26 @@ Mirroring Github with gitolite
           #echo "end ..."
           cd ../..
         done
+
+Usage
+-----
+
+1. Make sure you have a clean project
+
+        rm -rf composer.lock vendor
+
+2. update the composer.json file to disable packagist and add the new one
+
+        {
+            "repositories":[
+                { "packagist": false },
+                { "type": "composer", "url": "http://packagist.mycompany.com"}
+            ],
+            
+            // ...
+        }
+
+3. Install the dependencies
+
+        php composer.phar install
+
