@@ -1,7 +1,7 @@
 Packagist and Github mirroring
 ==============================
 
-Experimenting Github issues ? You want a local cache to speed up tests and deployment ?
+Experiencing Github issues ? You want a local cache to speed up tests and deployment ?
 
 
 Mirroring Packagist
