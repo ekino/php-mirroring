@@ -31,3 +31,25 @@ function replace_dist_host(array $metadata)
         $metadata['dist']['reference']
     );
 }
+
+/**
+ * Return true if you want to include the dist array 
+ * The dist array is used to download the archive version (zip)
+ *
+ * @return boolean
+ */
+function include_dist() 
+{
+    return true;
+}
+
+/**
+ * Return true if you want to include the source array 
+ * The source array is used to download from git/subversion
+ *
+ * @return boolean
+ */
+function include_source()
+{
+    return true;
+}

@@ -63,12 +63,20 @@ function update_packages(array $packages)
 {
     foreach ($packages as $package => &$versions) {
         foreach ($versions as $version => &$metadata) {
-            if (isset($metadata['source'])) {
-                $metadata['source']['url'] = replace_source_host($metadata['source']['url']);
+            if (include_source()) {
+                if (isset($metadata['source'])) {
+                    $metadata['source']['url'] = replace_source_host($metadata['source']['url']);
+                }                
+            } else {
+                unset($metadata['source']);
             }
 
-            if (isset($metadata['dist'])) {
-                $metadata['dist']['url'] = replace_dist_host($metadata);
+            if (include_dist()) {
+                if (isset($metadata['dist'])) {
+                    $metadata['dist']['url'] = replace_dist_host($metadata);
+                }
+            } else {
+                unset($metadata['dist']);
             }
         }
     }
@@ -165,4 +173,29 @@ function download_file($file, array $hash)
     }
 
     return array(json_decode(file_get_contents($target), true), $algo, 'packagist/'.$file); 
+}
+
+if (!function_exists('include_dist')) {
+    /**
+     * Return true if you want to include the dist array 
+     * The dist array is used to download the archive version (zip)
+     *
+     * @return boolean
+     */
+    function include_dist() {
+        return true;
+    }
+
+}
+
+if (!function_exists('include_source')) {
+    /**
+     * Return true if you want to include the source array 
+     * The source array is used to download from git/subversion
+     *
+     * @return boolean
+     */
+    function include_source() {
+        return true;
+    }
 }

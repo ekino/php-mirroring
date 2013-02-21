@@ -1,0 +1,4 @@
+Changelog:
+
+ - Add option to include source and dist array from mirroring
+ 
