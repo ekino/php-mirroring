@@ -22,7 +22,7 @@ if (!isset($_SERVER['PATH_INFO'])) {
 }
 
 $data = buid_parameters($_SERVER['PATH_INFO']);
-$path = 'caches/%s/%s/',  $data['vendor', $data['name'];
+$path = sprintf('caches/%s/%s',  $data['vendor'], $data['name']);
 
 if (!is_dir($path)) {
     mkdir($path, 0755, true);
@@ -75,7 +75,7 @@ function create_archive(arry $parameters)
 function send_file($name, $file) {
     header('Content-Description: File Transfer');
     header('Content-Type: application/octet-stream');
-    header(sprintf('Content-Disposition: attachment; filename=%s', $name);
+    header(sprintf('Content-Disposition: attachment; filename=%s', $name));
     header('Content-Transfer-Encoding: binary');
     header('Expires: 0');
     header('Cache-Control: must-revalidate');
