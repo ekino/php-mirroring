@@ -2,3 +2,4 @@ Changelog:
 
  - Add option to include source and dist array from mirroring
  - Add support for local cache
+ - Add support for new hashed file names

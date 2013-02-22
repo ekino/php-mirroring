@@ -23,32 +23,25 @@ Mirroring Packagist
 
         0 */1 * * * cd /PATH_TO_DOCUMENT_ROOT && php mirror.php
 
-Mirroring Github with gitolite
--------------------------------
+Mirroring Github
+----------------
 
-1. Setup a Gitolite
-
-2. Add a new entry
-
-        repo mirrors/..*
-            R = @team
-
-3. Create a new mirror directory
+1. Create a new mirror directory
 
         mkdir mirrors/github.com
 
-4. Add new mirror
+2. Add new mirror
 
         cd mirrors/github.com
         git clone --mirror git://github.com/ekino/php-mirroring.git ekino/php-mirroring.git
 
     Of course you need to repeat this operation for each mirror.
 
-5. Setup a cron to update the mirror:
+3. Setup a cron to update the mirror:
 
         0 */1 * * * /git/repositories/mirrors/update-mirrors.sh
 
-6. Add the file : `vim /git/repositories/mirrors/update-mirrors.sh`
+4. Add the file : `vim /git/repositories/mirrors/update-mirrors.sh`
 
         #!/bin/sh
         cd /git/repositories/mirrors/github.com
@@ -70,8 +63,61 @@ Mirroring Github with gitolite
           cd ../..
         done
 
-Usage
------
+
+Usages
+------
+
+### Using source mode with gitolite
+
+1. Setup a Gitolite
+
+2. Add a new entry
+
+        repo mirrors/..*
+            R = @team
+
+3. set the source mode to true
+
+        function include_source() 
+        {
+            return true;
+        }
+
+### Using dist mode with a http server
+
+1. setup a new php instance with a dedicated vhost
+
+2. make sure the replace_dist_host function point to the correct vhost
+
+      function replace_dist_host(array $metadata)
+      {
+          list($vendor, $name) = explode("/", $metadata['name']);
+
+          if (!preg_match('@(https://api.github.com/repos/|https://github.com/|https://bitbucket.org)([a-zA-Z0-9_\-\.]*)/([a-zA-Z0-9_\-\.]*)/(zipball|archive|get)/([a-zA-Z0-9\.\-]*)(|.zip)@', $metadata['dist']['url'], $matches)) {
+              return '';
+          }
+
+          $host = sprintf('http://packagist.mycompany.com/cache.php/github.com/%s/%s/%s.zip',
+              $matches[2],
+              $matches[3],
+              $metadata['dist']['reference']
+          );
+
+          return $host;
+      }
+
+      function include_dist() 
+      {
+          return true;
+      }
+
+      function include_source() 
+      {
+          return true; // set to false if you only want to expose distribution
+      }
+
+### Composer.json
+
 
 1. Make sure you have a clean project
 
