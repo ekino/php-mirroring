@@ -25,9 +25,13 @@ function replace_dist_host(array $metadata)
 {
     list($vendor, $name) = explode("/", $metadata['name']);
 
-    return sprintf('https://git.mycompany.com/mirrors/github.com/%s.git/snapshot/%s-%s.zip',
-        $metadata['name'],
-        $name,
+    if (!preg_match('@(https://api.github.com/repos/|https://github.com/|https://bitbucket.org)([a-zA-Z0-9_\-\.]*)/([a-zA-Z0-9_\-\.]*)/(zipball|archive|get)/([a-zA-Z0-9\.\-]*)(|.zip)@', $metadata['dist']['url'], $matches)) {
+        return '';
+    }
+
+    return sprintf('https://packagist.mycompany.com/cache.php/github.com/%s/%s/%s.zip',
+        $matches[2],
+        $matches[3],
         $metadata['dist']['reference']
     );
 }

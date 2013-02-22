@@ -21,14 +21,14 @@ if (!isset($_SERVER['PATH_INFO'])) {
     die('invalid package');
 }
 
-$data = buid_parameters($_SERVER['PATH_INFO']);
+$data = build_parameters($_SERVER['PATH_INFO']);
 $path = sprintf('caches/%s/%s',  $data['vendor'], $data['name']);
 
 if (!is_dir($path)) {
     mkdir($path, 0755, true);
 }
 
-$file = sprintf('%s/%s.bin', $path, serialize(hash('sha256', serialize($data))));
+$file = $file = sprintf('%s/%s.bin', $path, hash('sha256', serialize($data)));
 
 if (!is_file($file)) {
     rename(create_archive($data), $file);
@@ -47,11 +47,11 @@ send_file(sprintf('%s-%s-%s.zip', $data['vendor'], $data['name'], $data['version
  *  
  * @return string 
  */
-function create_archive(arry $parameters)
+function create_archive(array $parameters)
 {
     $out = sprintf('/tmp/php-mirroring-%s', md5(serialize($parameters).uniqid()));
 
-    $path = realpath(sprintf('%s/%s.git', get_repository_path(), $parameters['package']));
+    $path = sprintf('%s/%s.git', get_repository_path(), $parameters['package']);
 
     if (!$path || substr($path, 0, strlen(get_repository_path())) !== get_repository_path()) {
         throw new Exception("Unable to parse the request");   
@@ -61,13 +61,17 @@ function create_archive(arry $parameters)
         throw new Exception("Unable to parse the request");
     }
 
-    $cmd = sprintf('cd %s && git archive %s --format=zip -o %s',
-        $path,
-        $parameters['version'],
+    $cmd = sprintf('cd %s && /usr/bin/git archive %s --format=zip -o %s',
+        escapeshellcmd($path),
+        escapeshellcmd($parameters['version']),
         $out
-    );
+     );
 
-    system($out);
+    system($cmd);
+
+    if (!is_file($out)) {
+        die('unable to create the file');
+    }
 
     return $out;
 }

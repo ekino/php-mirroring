@@ -116,21 +116,28 @@ function store_content($file, array $content, $algo)
         $file = 'p/'.$file . ".json";
     } 
 
+    $content = json_encode($content);
+    $hash = hash($algo, $content);
+
     $path = dirname($file);
 
     if (!is_dir($path)) {
         mkdir($path, 0755, true);
     }
 
-    $content = json_encode($content);
+    if (strpos($file, '%hash%') !== false) {
+        $file = str_replace('%hash%', $hash, $file);
+    } else {
+        file_put_contents($file, $content);
 
-    file_put_contents($file, $content);
-
-    $hash = @hash_file($algo, $file);
-
-    if ($hash === false) {
-        echo "Error while storing $file\n";
+        $file = sprintf("%s$%s.json",
+            str_replace('.json', '', $file),
+            $hash
+        );    
     }
+    
+    file_put_contents($file, $content);
+    
 
     return $hash;
 }
@@ -151,6 +158,10 @@ function download_file($file, array $hash)
     $t = $hash;
     $algo = isset($hash['sha1']) ? 'sha1' : 'sha256';
     $hash = isset($hash[$algo]) ? $hash[$algo] : null;
+
+    if ($algo == 'sha256') {
+        $file = str_replace('%hash%', $hash, $file);
+    }
 
     $target = 'packagist/'.$file;
 

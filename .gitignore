@@ -3,4 +3,5 @@ packagist/*
 composer.phar
 packages.json
 config.php
-/vendor/
+vendor/
+caches/
