@@ -15,7 +15,7 @@ if (php_sapi_name() !== 'cli') {
    die('This script must run from the command line');
 }
 
-if (!is_file('config.php')) {
+if (!is_file(__DIR__.'/config.php')) {
     die('Please create a config.php file');
 }
 
