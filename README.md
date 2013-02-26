@@ -134,6 +134,30 @@ Usages
             // ...
         }
 
+  If you are using non-composer packages, use the correct source url when adding them.
+
+        {
+            "repositories":[
+                {
+                    "type": "package",
+                    "package": {
+                        "name": "documentcloud/underscore",
+                        "version": "dev-master",
+                        "source": {
+                            "url": "git@git.mycompany.com:/mirrors/github.com/documentcloud/underscore.git",
+                            "type": "git",
+                            "reference": "master"
+                        }
+                    }
+                }
+                
+                // ...
+            ],
+            
+            // ...
+        }
+
+
 3. Install the dependencies
 
         php composer.phar install
