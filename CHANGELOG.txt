@@ -1,5 +1,6 @@
 Changelog:
 
+ - [2014-08-05] Fix some warnings
  - Add option to include source and dist array from mirroring
  - Add support for local cache
  - Add support for new hashed file names

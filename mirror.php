@@ -34,17 +34,19 @@ echo "step 3: retrieving packages definition \n";
 foreach(array('includes', 'providers-includes', 'provider-includes') as $name) {
     echo "handling section: $name\n";
 
-    foreach ($packages[$name] as $file => &$options) {
-        list($content, $algo, ) = download_file($file, $options);
+    if (isset($packages[$name])) {
+        foreach ($packages[$name] as $file => &$options) {
+            list($content, $algo, ) = download_file($file, $options);
 
-        if (isset($content['packages'])) {
-            $content['packages'] = update_packages($content['packages']);
-        } else {
-            // legacy repo handling
-            $content['providers'] = update_providers($content['providers']);
-        }
+            if (isset($content['packages'])) {
+                $content['packages'] = update_packages($content['packages']);
+            } else {
+                // legacy repo handling
+                $content['providers'] = update_providers($content['providers']);
+            }
 
-        $options[$algo] = store_content($file, $content, $algo);
+          $options[$algo] = store_content($file, $content, $algo);
+      }
     }
 }
 
@@ -96,7 +98,10 @@ function update_providers(array $providers)
     foreach ($providers as $provider => &$options) {
         list($content, $algo, ) = download_file($provider, $options);
 
-        $content['packages'] = update_packages($content['packages']);
+        if (is_array($content['packages'])) {
+            $content['packages'] = update_packages($content['packages']);
+        }
+
         $options[$algo] = store_content($provider, $content, $algo);
     }
 
@@ -171,10 +176,11 @@ function download_file($file, array $hash)
         mkdir('packagist/'.$path, 0755, true);   
     }
 
-    if ( !is_file($target) || hash_file($algo, $target) != $hash) {
+    if (!is_file($target) || hash_file($algo, $target) != $hash) {
         echo sprintf("  > Retrieving %- 60s => %s \n", 'http://packagist.org/'.$file, $target);
 
         $content = @file_get_contents('http://packagist.org/'.$file);
+
         if (!$content) {
             echo "Unable to retrieve the file http://packagist.org/$file\n";
             exit(1);
