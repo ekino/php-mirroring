@@ -31,23 +31,18 @@ echo "step 2: retrieving packages.json - updated packages\n";
 list($packages,) = download_file('packages.json', array());
 
 echo "step 3: retrieving packages definition \n";
-foreach(array('includes', 'providers-includes', 'provider-includes') as $name) {
-    echo "handling section: $name\n";
 
-    if (isset($packages[$name])) {
-        foreach ($packages[$name] as $file => &$options) {
-            list($content, $algo, ) = download_file($file, $options);
+foreach ($packages['provider-includes'] as $file => &$options) {
+    list($content, $algo, ) = download_file($file, $options);
 
-            if (isset($content['packages'])) {
-                $content['packages'] = update_packages($content['packages']);
-            } else {
-                // legacy repo handling
-                $content['providers'] = update_providers($content['providers']);
-            }
-
-          $options[$algo] = store_content($file, $content, $algo);
-      }
+    if (isset($content['packages'])) {
+        $content['packages'] = update_packages($content['packages']);
+    } else {
+        // legacy repo handling
+        $content['providers'] = update_providers($content['providers']);
     }
+
+    $options[$algo] = store_content($file, $content, $algo);
 }
 
 store_content('packages.json', $packages, 'sha256');
