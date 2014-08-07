@@ -73,7 +73,7 @@ function get_repository_path()
  */
 function build_parameters($url)
 {
-    if (!preg_match('@/github.com/([a-zA-Z0-9\-\.]*)/([a-zA-Z0-9\-\.]*)/([a-zA-Z0-9\-\.]*).zip@', $url, $matches)) {
+    if (!preg_match('@/github.com/([a-zA-Z0-9_\-\.]*)/([a-zA-Z0-9_\-\.]*)/([a-zA-Z0-9\-\.]*).zip@', $url, $matches)) {
         throw new Exception("Unable to parse the request");
     }
 
