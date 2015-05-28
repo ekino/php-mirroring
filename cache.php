@@ -22,13 +22,13 @@ if (!isset($_SERVER['PATH_INFO'])) {
 }
 
 $data = build_parameters($_SERVER['PATH_INFO']);
-$path = sprintf('caches/%s/%s',  $data['vendor'], $data['name']);
+$path = sprintf('caches/%s/%s', $data['vendor'], $data['name']);
 
 if (!is_dir($path)) {
     mkdir($path, 0755, true);
 }
 
-$file = $file = sprintf('%s/%s.bin', $path, hash('sha256', serialize($data)));
+$file = sprintf('%s/%s.bin', $path, hash('sha256', serialize($data)));
 
 if (!is_file($file)) {
     rename(create_archive($data), $file);
