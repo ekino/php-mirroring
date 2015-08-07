@@ -35,6 +35,10 @@ echo "step 3: retrieving packages definition \n";
 foreach ($packages['provider-includes'] as $file => &$options) {
     list($content, $algo, ) = download_file($file, $options);
 
+    if ($content === false) {
+        continue; // fail to download
+    }
+
     if (isset($content['packages'])) {
         $content['packages'] = update_packages($content['packages']);
     } else {
@@ -63,7 +67,7 @@ function update_packages(array $packages)
             if (include_source()) {
                 if (isset($metadata['source'])) {
                     $metadata['source']['url'] = replace_source_host($metadata['source']['url']);
-                }                
+                }
             } else {
                 unset($metadata['source']);
             }
@@ -93,6 +97,10 @@ function update_providers(array $providers)
     foreach ($providers as $provider => &$options) {
         list($content, $algo, ) = download_file($provider, $options);
 
+        if ($content === false) {
+            continue; // fail to download, ignore the package
+        }
+
         if (is_array($content['packages'])) {
             $content['packages'] = update_packages($content['packages']);
         }
@@ -114,7 +122,7 @@ function store_content($file, array $content, $algo)
 {
     if (substr($file, -5) != '.json') {
         $file = 'p/'.$file . ".json";
-    } 
+    }
 
     $content = json_encode($content);
     $hash = hash($algo, $content);
@@ -133,11 +141,10 @@ function store_content($file, array $content, $algo)
         $file = sprintf("%s$%s.json",
             str_replace('.json', '', $file),
             $hash
-        );    
+        );
     }
-    
+
     file_put_contents($file, $content);
-    
 
     return $hash;
 }
@@ -149,11 +156,11 @@ function store_content($file, array $content, $algo)
  * @param string $file the file to download
  * @param array  $hash the information
  */
-function download_file($file, array $hash) 
+function download_file($file, array $hash)
 {
     if (substr($file, -5) != '.json') {
         $file = 'p/'.$file . ".json";
-    } 
+    }
 
     $t = $hash;
     $algo = isset($hash['sha1']) ? 'sha1' : 'sha256';
@@ -168,7 +175,7 @@ function download_file($file, array $hash)
     $path = dirname($file);
 
     if (!is_dir('packagist/'.$path)) {
-        mkdir('packagist/'.$path, 0755, true);   
+        mkdir('packagist/'.$path, 0755, true);
     }
 
     if (!is_file($target) || hash_file($algo, $target) != $hash) {
@@ -178,18 +185,19 @@ function download_file($file, array $hash)
 
         if (!$content) {
             echo "Unable to retrieve the file http://packagist.org/$file\n";
-            exit(1);
+
+            return array(false, false, false);
         }
 
         file_put_contents($target, $content);
     }
 
-    return array(json_decode(file_get_contents($target), true), $algo, 'packagist/'.$file); 
+    return array(json_decode(file_get_contents($target), true), $algo, 'packagist/'.$file);
 }
 
 if (!function_exists('include_dist')) {
     /**
-     * Return true if you want to include the dist array 
+     * Return true if you want to include the dist array
      * The dist array is used to download the archive version (zip)
      *
      * @return boolean
@@ -202,7 +210,7 @@ if (!function_exists('include_dist')) {
 
 if (!function_exists('include_source')) {
     /**
-     * Return true if you want to include the source array 
+     * Return true if you want to include the source array
      * The source array is used to download from git/subversion
      *
      * @return boolean
