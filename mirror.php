@@ -97,7 +97,7 @@ function update_providers(array $providers)
     foreach ($providers as $provider => &$options) {
         list($content, $algo, ) = download_file($provider, $options);
 
-        if ($content === false) {
+        if (!$content) {
             continue; // fail to download, ignore the package
         }
 
