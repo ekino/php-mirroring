@@ -25,15 +25,15 @@ include __DIR__.'/config.php';
 
 
 echo "step 1 : retrieving composer.phar\n";
-file_put_contents('composer.phar', file_get_contents('http://getcomposer.org/composer.phar'));
+file_put_contents('composer.phar', file_get_contents('https://getcomposer.org/composer.phar'));
 
 echo "step 2: retrieving packages.json - updated packages\n";
-list($packages,) = download_file('packages.json', array());
+list($packages, $algo, $target, $mode) = download_file('packages.json', array());
 
 echo "step 3: retrieving packages definition \n";
 
 foreach ($packages['provider-includes'] as $file => &$options) {
-    list($content, $algo, ) = download_file($file, $options);
+    list($content, $algo, $target, $mode) = download_file($file, $options);
 
     if ($content === false) {
         continue; // fail to download
@@ -95,7 +95,7 @@ function update_packages(array $packages)
 function update_providers(array $providers)
 {
     foreach ($providers as $provider => &$options) {
-        list($content, $algo, ) = download_file($provider, $options);
+        list($content, $algo, $target, $mode) = download_file($provider, $options);
 
         if (!$content) {
             continue; // fail to download, ignore the package
@@ -133,18 +133,41 @@ function store_content($file, array $content, $algo)
         mkdir($path, 0755, true);
     }
 
-    if (strpos($file, '%hash%') !== false) {
-        $file = str_replace('%hash%', $hash, $file);
-    } else {
-        file_put_contents($file, $content);
+    $isPackage = strpos($file, '%hash%') === false;
+    $link = sprintf("%s$%s.json", str_replace('.json', '', $file), $hash);
 
-        $file = sprintf("%s$%s.json",
-            str_replace('.json', '', $file),
-            $hash
-        );
+    if ($isPackage && file_exists($link)) { // file already exist, return
+        return $hash;
+    }
+
+    if ($isPackage) {
+        $glob = sprintf('%s\$*.json', str_replace('.json', '', $file));
+    } else {
+        $glob = str_replace('$%hash%', '\$*', $file);
+    }
+
+    foreach(glob($glob) as $f) {
+        if ($isPackage && $f == $link) {
+            continue;
+        }
+
+        echo sprintf("    delete: %s\n", $f);
+        unlink($f);
+    }
+
+    if (!$isPackage) {
+        $file = str_replace('%hash%', $hash, $file);
     }
 
     file_put_contents($file, $content);
+    echo sprintf("    write:  %s\n", $file);
+
+    if ($isPackage) {
+        @unlink($link);
+        file_put_contents($link, $content);
+
+        echo sprintf("    write:  %s (package)\n", $link);
+    }
 
     return $hash;
 }
@@ -179,20 +202,25 @@ function download_file($file, array $hash)
     }
 
     if (!is_file($target) || hash_file($algo, $target) != $hash) {
-        echo sprintf("  > Retrieving %- 60s => %s \n", 'http://packagist.org/'.$file, $target);
+        echo sprintf("  > Retrieving %- 70s => %s \n", 'http://packagist.org/'.$file, $target);
 
         $content = @file_get_contents('http://packagist.org/'.$file);
 
         if (!$content) {
-            echo "Unable to retrieve the file http://packagist.org/$file\n";
+            echo "    ERR: Unable to retrieve the file http://packagist.org/$file\n";
 
-            return array(false, false, false);
+            return array(false, false, false, false);
         }
 
         file_put_contents($target, $content);
+
+        $mode = "DL";
+    } else {
+        // echo sprintf("  > SKIP %s \n", $target);
+        $mode = "SKIP";
     }
 
-    return array(json_decode(file_get_contents($target), true), $algo, 'packagist/'.$file);
+    return array(json_decode(file_get_contents($target), true), $algo, 'packagist/'.$file, $mode);
 }
 
 if (!function_exists('include_dist')) {
