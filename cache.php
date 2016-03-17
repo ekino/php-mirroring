@@ -40,6 +40,13 @@ if (!is_file($file)) {
 
 send_file(sprintf('%s-%s-%s.zip', $data['vendor'], $data['name'], $data['version']), $file);
 
+$tag = preg_match('/[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}/', $data['version']) === 1;
+
+// not a sha1 or version (X.X.X) ...
+if (strlen($data['version']) != 40 || !$tag) {
+   unlink($file);
+}
+
 /**
  * Create the archive and return the localtion path
  * The created filed is temporary, and will be deleted by
