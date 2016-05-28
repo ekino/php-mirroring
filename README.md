@@ -1,3 +1,11 @@
+⚠️ Deprecated Project ⚠️
+=====================
+
+Please note, the current implementation is not suitable anymore and does not work anymore with composer if you are using an ``ext3`` partition. Also, the mirroring solution requires a dedicated git host to server repository which is not an easy and simple task on the long run. 
+
+You should now use: [https://github.com/rande/pkgmirror](https://github.com/rande/pkgmirror)
+
+
 Packagist and Github mirroring
 ==============================
 
